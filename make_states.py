@@ -1,11 +1,10 @@
 import file_IO_helper as fio
 
-def get_all_states():
+def get_all_states(i = 0):
     '''This gets all of the possible states of the automaton. We assume that
     in the states folder, there is nothing but the initial state under file
     name graph_0.
     '''
-    i = 0
     while fio.graph_file(i) != fio.next_graph():
         print(i)
         graph = fio.read_graph(i)
@@ -17,5 +16,5 @@ def get_all_states():
     print("WE DID IT")
 
 if __name__ == "__main__":
-    #get_all_states()
+    get_all_states(i = 120)
     print('starting')
