@@ -14,9 +14,6 @@ class Graph:
         self.matrix = adj.nodes_to_matrix(nodes)
         self.can_get_to = []
 
-    def to_string(self):
-        return self.shape + "-" + self.num
-
     def update_matrix(self):
         self.matrix = adj.nodes_to_matrix(self.nodes)
 
@@ -91,6 +88,23 @@ class Graph:
                     new.append(turn[0] + turn[1])
                 verts.append(new)
         return verts
+
+    def adjacent_vertices(self, vertices, vertex):
+        '''Given a list of vertices in a graph (as calculated by get_vertices() and the
+        index of a specific vertex in that list, this function returns the indices of all
+        adjacent vertices.
+        '''
+        adj = []
+        vertex = vertices[vertex]
+        for outneigh in vertex: # see which vertex each outgoing edge goes to
+            other_end = outneigh[0] + fh.opp(outneigh[1])[0]
+            i = 0
+            while i < len(vertices):
+                if other_end in vertices[i] and i not in adj:
+                    adj.append(i)
+                i += 1
+        return sorted(adj)
+    
 
     def find_legal_folds(self):
         '''Given a graph, this function determines what the legal folds on this graph are.
@@ -173,6 +187,63 @@ class Graph:
             print("did a fold")
         self.can_get_to = can_get_to
 
+    def bridge_util(self, u, time, bridges, visited, parent, low, disc):
+        '''A recursive function that finds bridges using DFS traversal. Where the
+        parameters are:
+            u: vertex to be visited next
+            time: current time (ie number of times bridge_util has been called)
+            visited: keeps track of visited vertices
+            disc: stores discovery times of visited vertices
+            parent: stores parent vertices in DFS tree
+        Adapted from https://www.geeksforgeeks.org/bridge-in-a-graph/
+        '''
+        visited[u] = True
+        disc[u] = time
+        low[u] = time
+        time += 1
+        # Recur for all vertices adjacent to this vertex
+        for v in self.adjacent_vertices(self.get_vertices(), u):
+            # if not visited, make it a child of u in DFS tree and recur for it
+            if not visited[v]:
+                parent[v] = u
+                self.bridge_util(v, time, bridges, visited, parent, low, disc)
+                # check if the subtree rooted with v has a connection to an ancestor
+                # of u
+                low[u] = min(low[u], low[v])
+                # If the lowest vertex reachable from subtree under v is below u in DFS
+                # tree, then u,v is a bridge:
+                if low[v] > disc[u]:
+                    bridges.append((u,v))
+            elif v != parent[u]: # update low value of u for parent fn calls
+                low[u] = min(low[u], disc[v])
+                
+
+    def get_bridges(self):
+        '''A DFS based function to find all bridges, using recursive function bridge_util().
+        Adapted from https://www.geeksforgeeks.org/bridge-in-a-graph/
+        '''
+        # Ideally, we change this function a little - it returns tuples of vertices
+        # instead of edge names, but it's fine for now
+        verts = self.get_vertices()
+        bridges = []
+        time = 0
+        visited = [False] * len(verts)
+        disc = [float("Inf")] * len(verts)
+        low = [float("Inf")] * len(verts)
+        parent = [-1] * len(verts)
+
+        for i in range(len(verts)):
+            if not visited[i]:
+                self.bridge_util(i, time, bridges, visited, parent, low, disc)
+
+        return bridges
+
+    def is_reduced(self):
+        '''This function returns a boolean indicating if the graph is in reduced outer
+        space.
+        '''
+        return len(self.get_bridges()) == 0
+
 if __name__ == "__main__":
     import file_IO_helper as fio
     import adj_matrices as adj
@@ -194,25 +265,42 @@ if __name__ == "__main__":
 ##        print(vert)
 ##    print(graph.vertices_with_folds())
 ##
-    # Let's see if there are any graphs with more than one vertex with a legal fold
-    i = 0
-    while i < 211:
-        g = fio.read_graph(i)
-        v = g.vertices_with_folds()
-        if len(v) > 1:
-            print(i)
-            print(len(v))
-            print(len(g.nodes))
-            print()
-        i += 1
+##    # Let's see if there are any graphs with more than one vertex with a legal fold
+##    i = 0
+##    while i < 211:
+##        g = fio.read_graph(i)
+##        v = g.vertices_with_folds()
+##        if len(v) > 1:
+##            print(i)
+##            print(len(v))
+##            print(len(g.nodes))
+##            print()
+##        i += 1
+##
+##    # Let's see if there are any 5-edge graphs w more than one vertex w a legal fold
+##    i = 0
+##    while i < 211:
+##        g = fio.read_graph(i)
+##        v = g.vertices_with_folds()
+##        if len(v) > 1 and len(g.nodes) == 5:
+##            print(i)
+##            print(len(v))
+##        i += 1
 
-    # Let's see if there are any 5-edge graphs w more than one vertex w a legal fold
-    i = 0
-    while i < 211:
-        g = fio.read_graph(i)
-        v = g.vertices_with_folds()
-        if len(v) > 1 and len(g.nodes) == 5:
-            print(i)
-            print(len(v))
-        i += 1
+    # test get_vertices() and adjacent_vertices()
+    graph = fio.read_graph(0)
+    verts = graph.get_vertices()
+    print(verts)
+    for i in range(len(verts)):
+        print(graph.adjacent_vertices(verts, i))
+    #test is_reduced
+    print(graph.is_reduced())
 
+    # test vertices again
+    graph = fio.read_graph(1)
+    verts = graph.get_vertices()
+    print(verts)
+    for i in range(len(verts)):
+        print(graph.adjacent_vertices(verts, i))
+    # test is_reduced again
+    print(graph.is_reduced())
