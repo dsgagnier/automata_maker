@@ -16,5 +16,5 @@ def get_all_states(i = 0):
     print("WE DID IT")
 
 if __name__ == "__main__":
-    get_all_states(i = 120)
+    get_all_states()
     print('starting')
