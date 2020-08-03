@@ -79,26 +79,27 @@ def visit(state, visited, matrix, order):
             col += 1
         order.insert(0, state)
 
-def assign(state, root, scc, matrix):
+def assign(state, root, order, scc, matrix):
     '''Part of Kosaraju's algorithm.'''
-    if not search_scc(state, scc):
+    if not search_scc(order[state], scc):
         try:        # append it to the list
-            scc[root].append(state)
+            scc[order[root]].append(order[state])
         except:     # if there isn't a list, make one
-            scc[root] = [state]
+            scc[order[root]] = [order[state]]
         row = 0
         while row < len(matrix):
-            if matrix[row][state] == 1: # in neighbour
-                assign(row, root, scc, matrix)
+            if matrix[row][order[state]] == 1: # in neighbour
+                assign(order.index(row), root, order, scc, matrix)
             row += 1
 
 def partition_part_scc(part_class, folder = "states"):
     '''Given a list representing a part of a partition of states, this function finds the
     strongly connected components via Kosaraju's algorithm.
+    Source: https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm
     '''
     matrix = partition_class_to_matrix(part_class, folder)
     visited = [False for i in range(len(part_class))]
-    order = []
+    order = []  # L in source
     scc = {}
     state = 0
     while state < len(part_class):
@@ -106,7 +107,7 @@ def partition_part_scc(part_class, folder = "states"):
         state += 1
     state = 0
     while state < len(order):
-        assign(state, state, scc, matrix)
+        assign(state, state, order, scc, matrix)
         state += 1
     return scc_dict_to_states_list(scc, part_class)
 
