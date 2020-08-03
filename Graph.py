@@ -32,7 +32,7 @@ class Graph:
             print(node.tail)
             print()
 
-    def in_list(self):
+    def in_list(self, folder = "states"):
         '''This function checks if the "self" object is equal to any graph in the states
         folder via linear search.
         '''
@@ -40,15 +40,15 @@ class Graph:
         graphs_left = True
         while graphs_left:
             try:
-                if self.is_equal(fio.read_graph(i)):
+                if self.is_equal(fio.read_graph(i, folder = "states")):
                     return True
                 i += 1
             except:
                 graphs_left = False
         return None
 
-    def find_in_list(self):
-        '''This function checks if the "self" object is equal to any graph in the states
+    def find_in_list(self, folder = "states"):
+        '''This function checks if the "self" object is equal to any graph in the specified
         folder via linear search. If so, it returns the file name. Otherwise, it returns
         None.
         '''
@@ -56,8 +56,8 @@ class Graph:
         graphs_left = True
         while graphs_left:
             try:
-                if self.is_equal(fio.read_graph(i)):
-                    return fio.graph_file(i)
+                if self.is_equal(fio.read_graph(i, folder)):
+                    return fio.graph_file(i, folder)
                 i += 1
             except:
                 graphs_left = False
@@ -157,8 +157,8 @@ class Graph:
             vertices_w_folds.append(verts[ind])
         return vertices_w_folds
 
-    def perform_legal_folds(self):
-        '''Performs all legal folds on a graph.
+    def perform_legal_folds(self, folder = "states"):
+        '''Performs all legal folds on a graph stored in the specifed folder.
         '''
         can_get_to = []
         folds = self.find_legal_folds()
@@ -175,11 +175,11 @@ class Graph:
             print(fold.longer)
             print("It gave the graph:")
             new.print_nodes()
-            ind = new.find_in_list()
+            ind = new.find_in_list(folder)
             print("Is it in the list? If so, what's its file name?")
             print(ind)
             if ind is None:     # we haven't already seen the graph gotten from fold
-                file_name = fio.next_graph()
+                file_name = fio.next_graph(folder)
                 fio.write_file(new, file_name)
                 can_get_to.append([fold.fold_name, fold.longer, fio.graph_index(file_name)])
             else:

@@ -46,7 +46,6 @@ def next_graph(folder = "states"):
 
 def graph_index(file_name):
     '''Given the file name of a graph, returns the integer tacked onto the end.'''
-    ## NEED THE LAST UNDERSCORE
     integer = file_name[file_name.rfind("_") + 1 :]  # take from the _ to the end
     return int(integer)
 

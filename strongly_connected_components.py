@@ -25,15 +25,15 @@ def search_scc(needle, haystack):
             return True
     return False
 
-def partition_states():
+def partition_states(folder = "states"):
     '''This partitions all of the states (already generated) by the number of edges/nodes.
     The partitioning is done by a dictionary, where the key is the number of edges and the
     value is a list of the indices to the corresponding graphs.
     '''
     partition = {}
     i = 0
-    while fio.graph_file(i) != fio.next_graph():
-        graph = fio.read_graph(i)
+    while fio.graph_file(i, folder) != fio.next_graph(folder):
+        graph = fio.read_graph(i, folder)
         try:
             partition[len(graph.nodes)].append(i)
         except:
@@ -41,7 +41,7 @@ def partition_states():
         i += 1
     return partition
 
-def partition_class_to_matrix(part_class):
+def partition_class_to_matrix(part_class, folder = "states"):
     '''Given a list representing a part of a partition of states, this function creates an
     adjacency matrix for the provided states. (That is, the matrix returned is essentially
     the adjacency matrix of all of the states with the rows and columns pertaining to the
@@ -51,7 +51,7 @@ def partition_class_to_matrix(part_class):
     matrix = [[0 for i in range(n)] for j in range(n)] # make an nxn matrix of 0s
     row = 0
     while row < n:
-        graph = fio.read_graph(part_class[row])
+        graph = fio.read_graph(part_class[row], folder)
         for out in graph.can_get_to:
             col = bin_search(out[2], part_class)
             if col is not None:  # if the outneighbour is in the partition
@@ -92,11 +92,11 @@ def assign(state, root, scc, matrix):
                 assign(row, root, scc, matrix)
             row += 1
 
-def partition_part_scc(part_class):
+def partition_part_scc(part_class, folder = "states"):
     '''Given a list representing a part of a partition of states, this function finds the
     strongly connected components via Kosaraju's algorithm.
     '''
-    matrix = partition_class_to_matrix(part_class)
+    matrix = partition_class_to_matrix(part_class, folder)
     visited = [False for i in range(len(part_class))]
     order = []
     scc = {}
@@ -121,8 +121,15 @@ def partitioned_get_scc(partition):
     return scc
 
 if __name__ == "__main__":
-    part = partition_states()
-    scc = partitioned_get_scc(part)
+##    part = partition_states()
+##    scc = partitioned_get_scc(part)
+##    for elem in scc:
+##        print(elem)
+##        print()
+
+    # Try for graphs from ic and triangle
+    part = partition_states("states_from_tri_and_ic")
+    scc = partition_part_scc(part[5], "states_from_tri_and_ic")
     for elem in scc:
         print(elem)
         print()
