@@ -24,6 +24,7 @@ class Graph:
         return adj.are_equal_adj(self.matrix, other_graph.matrix)
 
     def print_nodes(self):
+        '''Prints the nodes of a graph.'''
         for node in self.nodes:
             print("Name: " + node.name)
             print("Head: ")
@@ -287,20 +288,28 @@ if __name__ == "__main__":
 ##            print(len(v))
 ##        i += 1
 
-    # test get_vertices() and adjacent_vertices()
-    graph = fio.read_graph(0)
-    verts = graph.get_vertices()
-    print(verts)
-    for i in range(len(verts)):
-        print(graph.adjacent_vertices(verts, i))
-    #test is_reduced
-    print(graph.is_reduced())
+##    # test get_vertices() and adjacent_vertices()
+##    graph = fio.read_graph(0)
+##    verts = graph.get_vertices()
+##    print(verts)
+##    for i in range(len(verts)):
+##        print(graph.adjacent_vertices(verts, i))
+##    #test is_reduced
+##    print(graph.is_reduced())
+##
+##    # test vertices again
+##    graph = fio.read_graph(1)
+##    verts = graph.get_vertices()
+##    print(verts)
+##    for i in range(len(verts)):
+##        print(graph.adjacent_vertices(verts, i))
+##    # test is_reduced again
+##    print(graph.is_reduced())
 
-    # test vertices again
-    graph = fio.read_graph(1)
-    verts = graph.get_vertices()
-    print(verts)
-    for i in range(len(verts)):
-        print(graph.adjacent_vertices(verts, i))
-    # test is_reduced again
-    print(graph.is_reduced())
+    # test is_reduced
+    folder = "states_from_tri_and_ic"
+    i = 0
+    while i < 212:
+        graph = fio.read_graph(i, folder)
+        print(f"{i}: {graph.is_reduced()}")
+        i += 1

@@ -1,6 +1,9 @@
 import fold_helper as fh
 
 def sim_fold_names(graph):
+    '''This function returns tuples that indicate folds done at the same vertex which may
+    legally be done simultaneously.
+    '''
     sim_folds = []
     legal = fh.fold_obj_to_name(graph.find_legal_folds())
     i = 0

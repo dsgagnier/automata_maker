@@ -155,20 +155,10 @@ def nodes_to_matrix(nodes):
                 matrix[col][row][1] = 1
     return matrix
 
-def OLD_are_equal_adj(matrix1, matrix2):
-    '''This function checks if two matrices are equal up to "symmetric permutation."
-    This function is no longer to be used, but it here to reference if necessary.
-    '''
-    if len(matrix1) != len(matrix2):
-        return False
-    n = len(matrix1)
-    perms = list(itertools.permutations(int_list(n)))
-    for perm in perms:
-        if symmetric_permute(matrix1, perm) == matrix2:
-            return True
-    return False
-
 def are_equal_adj(matrix1, matrix2):
+    '''This function checks if two matrices are equal up to "symmetric
+    permutation."
+    '''
     if len(matrix1) != len(matrix2):
         return False
     n = len(matrix1)

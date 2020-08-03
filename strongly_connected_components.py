@@ -60,6 +60,12 @@ def partition_class_to_matrix(part_class, folder = "states"):
     return matrix
 
 def scc_dict_to_states_list(scc, part_class):
+    '''Given a dictionary of strongly connected components obtained from
+    Kosaraju's algorithm (where the numbers in each component refer to the
+    indices of elements in part_class), this function returns a list where each
+    element is a list containing the corresponding elements of part_class
+    belonging to each strongly connected component.
+    '''
     scc_list = []
     for key in scc:
         component = []
