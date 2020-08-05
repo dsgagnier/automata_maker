@@ -188,62 +188,21 @@ class Graph:
             print("did a fold")
         self.can_get_to = can_get_to
 
-    def bridge_util(self, u, time, bridges, visited, parent, low, disc):
-        '''A recursive function that finds bridges using DFS traversal. Where the
-        parameters are:
-            u: vertex to be visited next
-            time: current time (ie number of times bridge_util has been called)
-            visited: keeps track of visited vertices
-            disc: stores discovery times of visited vertices
-            parent: stores parent vertices in DFS tree
-        Adapted from https://www.geeksforgeeks.org/bridge-in-a-graph/
+    def has_val_two_vertex(self):
+        '''Returns True if the graph has a vertex of valence two and False
+        otherwise.
         '''
-        visited[u] = True
-        disc[u] = time
-        low[u] = time
-        time += 1
-        # Recur for all vertices adjacent to this vertex
-        for v in self.adjacent_vertices(self.get_vertices(), u):
-            # if not visited, make it a child of u in DFS tree and recur for it
-            if not visited[v]:
-                parent[v] = u
-                self.bridge_util(v, time, bridges, visited, parent, low, disc)
-                # check if the subtree rooted with v has a connection to an ancestor
-                # of u
-                low[u] = min(low[u], low[v])
-                # If the lowest vertex reachable from subtree under v is below u in DFS
-                # tree, then u,v is a bridge:
-                if low[v] > disc[u]:
-                    bridges.append((u,v))
-            elif v != parent[u]: # update low value of u for parent fn calls
-                low[u] = min(low[u], disc[v])
-                
+        # perhaps throw exception if the path somehow doesn't go over the turn
+        # on the valence two vertex
+        for edge in self.nodes:
+            if len(edge.head) == 1 or len(edge.tail) == 1:
+                return True
+        return False
 
-    def get_bridges(self):
-        '''A DFS based function to find all bridges, using recursive function bridge_util().
-        Adapted from https://www.geeksforgeeks.org/bridge-in-a-graph/
+    def remove_val_two_vertex(self):
+        '''Removes a valence two vertex from a graph.
         '''
-        # Ideally, we change this function a little - it returns tuples of vertices
-        # instead of edge names, but it's fine for now
-        verts = self.get_vertices()
-        bridges = []
-        time = 0
-        visited = [False] * len(verts)
-        disc = [float("Inf")] * len(verts)
-        low = [float("Inf")] * len(verts)
-        parent = [-1] * len(verts)
-
-        for i in range(len(verts)):
-            if not visited[i]:
-                self.bridge_util(i, time, bridges, visited, parent, low, disc)
-
-        return bridges
-
-    def is_reduced(self):
-        '''This function returns a boolean indicating if the graph is in reduced outer
-        space.
-        '''
-        return len(self.get_bridges()) == 0
+        return
 
 if __name__ == "__main__":
     import file_IO_helper as fio
@@ -306,10 +265,3 @@ if __name__ == "__main__":
 ##    # test is_reduced again
 ##    print(graph.is_reduced())
 
-    # test is_reduced
-    folder = "states_from_tri_and_ic"
-    i = 0
-    while i < 212:
-        graph = fio.read_graph(i, folder)
-        print(f"{i}: {graph.is_reduced()}")
-        i += 1
