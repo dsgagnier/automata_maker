@@ -47,7 +47,7 @@ def remove_self_connect(edge):
 def delete_folded_edges(all_edges, del_edges):
     '''Given a graph and a list of edges (that were presumably folded), this function
     deletes the folded nodes from the list of edges.
-        We assume that none of the listed nodes are teh list node in the list of edges.
+        We assume that none of the listed nodes are the last node in the list of edges.
     '''
     i = 0
     while i < len(all_edges) - 1:

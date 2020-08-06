@@ -188,22 +188,6 @@ class Graph:
             print("did a fold")
         self.can_get_to = can_get_to
 
-    def has_val_two_vertex(self):
-        '''Returns True if the graph has a vertex of valence two and False
-        otherwise.
-        '''
-        # perhaps throw exception if the path somehow doesn't go over the turn
-        # on the valence two vertex
-        for edge in self.nodes:
-            if len(edge.head) == 1 or len(edge.tail) == 1:
-                return True
-        return False
-
-    def remove_val_two_vertex(self):
-        '''Removes a valence two vertex from a graph.
-        '''
-        return
-
 if __name__ == "__main__":
     import file_IO_helper as fio
     import adj_matrices as adj
@@ -256,12 +240,9 @@ if __name__ == "__main__":
 ##    #test is_reduced
 ##    print(graph.is_reduced())
 ##
-##    # test vertices again
-##    graph = fio.read_graph(1)
-##    verts = graph.get_vertices()
-##    print(verts)
-##    for i in range(len(verts)):
-##        print(graph.adjacent_vertices(verts, i))
-##    # test is_reduced again
-##    print(graph.is_reduced())
-
+    # test vertices again
+    graph = fio.read_graph(1, "states_from_tri_and_ic")
+    verts = graph.get_vertices()
+    print(verts)
+    for i in range(len(verts)):
+        print(graph.adjacent_vertices(verts, i))

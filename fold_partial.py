@@ -1,6 +1,7 @@
 import copy
 import Node
 import fold_helper as fh
+import make_legal as mleg
 
 def next_edge_name(nodes):
     '''Given a list of nodes, this function returns a letter of the alphabet that has not
@@ -82,8 +83,9 @@ def fix_turns(new_name, edges, edge1, edge2, ht1, ht2):
     '''
     edge = 0
     while edge < len(edges):
-        fix_turns_ht(new_name, edges[edge].head, edge1, edge2, ht1, ht2)
-        fix_turns_ht(new_name, edges[edge].tail, edge1, edge2, ht1, ht2)
+        if edges[edge].name not in [edge1.name, edge2.name]: # We fix the folded edges later
+            fix_turns_ht(new_name, edges[edge].head, edge1, edge2, ht1, ht2)
+            fix_turns_ht(new_name, edges[edge].tail, edge1, edge2, ht1, ht2)
         edge += 1
 
 def partial_fold(old_graph, edge1, ht1, edge2, ht2):
@@ -100,40 +102,70 @@ def partial_fold(old_graph, edge1, ht1, edge2, ht2):
     fix_folded_edges(new_edge_name, edge1, edge2, ht1, ht2)
     for edge in graph.nodes:
         fh.remove_self_connect(edge)
+    mleg.remove_val_two_vertex(graph) ## this is the problem
+    graph.print_nodes()
     graph.update_matrix()
     return graph
     
 
 if __name__ == "__main__":
     import file_IO_helper as fio
-    # test next_edge_name
-    graph = fio.read_graph(0)
-    print(next_edge_name(graph.nodes)) # should be f
-    del graph.nodes[2]
-    print(next_edge_name(graph.nodes)) # should be f
+##    # test next_edge_name
+##    graph = fio.read_graph(0)
+##    print(next_edge_name(graph.nodes)) # should be f
+##    del graph.nodes[2]
+##    print(next_edge_name(graph.nodes)) # should be f
+##
+##    # test folding
+##    graph = fio.read_graph(0)
+##    print("Graph we're starting with:")
+##    graph.print_nodes()
+##    folds = fh.fold_obj_to_name(graph.find_legal_folds())
+##    fold = folds[0]
+##    print("The fold we're doing:")
+##    print(fold)
+##    new = partial_fold(graph, fh.find_edge(graph, fold[0]), fold[1],
+##                       fh.find_edge(graph, fold[2]), fold[3])
+##    print("The graph we get:")
+##    new.print_nodes()
+##
+##    # test again!
+##    graph = fio.read_graph(1)
+##    print("Graph we're starting with:")
+##    graph.print_nodes()
+##    folds = fh.fold_obj_to_name(graph.find_legal_folds())
+##    fold = folds[0]
+##    print("The fold we're doing:")
+##    print(fold)
+##    new = partial_fold(graph, fh.find_edge(graph, fold[0]), fold[1],
+##                       fh.find_edge(graph, fold[2]), fold[3])
+##    print("The graph we get:")
+##    new.print_nodes()
 
-    # test folding
-    graph = fio.read_graph(0)
-    print("Graph we're starting with:")
-    graph.print_nodes()
-    folds = fh.fold_obj_to_name(graph.find_legal_folds())
-    fold = folds[0]
-    print("The fold we're doing:")
-    print(fold)
-    new = partial_fold(graph, fh.find_edge(graph, fold[0]), fold[1],
-                       fh.find_edge(graph, fold[2]), fold[3])
-    print("The graph we get:")
-    new.print_nodes()
+    i = 0
+    folder = "partial_fold_test"
+    while fio.graph_file(i, folder) != fio.next_graph(folder):
+        print(i)
+        graph = fio.read_graph(i, folder)
+        can_get_to = []
+        folds = fh.fold_obj_to_name(graph.find_legal_folds())
+        
+        for fold in folds:
+            new = partial_fold(graph, fh.find_edge(graph, fold[0]), fold[1],
+                               fh.find_edge(graph, fold[2]), fold[3])
+            ind = new.find_in_list(folder)
+            if ind is None:
+                file_name = fio.next_graph(folder)
+                fio.write_file(new, file_name)
+                can_get_to.append([fold, "p", fio.graph_index(file_name)])
+            else:
+                can_get_to.append([fold, "p", fio.graph_index(ind)])
+        graph.can_get_to = can_get_to
+        i += 1
 
-    # test again!
-    graph = fio.read_graph(1)
-    print("Graph we're starting with:")
-    graph.print_nodes()
-    folds = fh.fold_obj_to_name(graph.find_legal_folds())
-    fold = folds[0]
-    print("The fold we're doing:")
-    print(fold)
-    new = partial_fold(graph, fh.find_edge(graph, fold[0]), fold[1],
-                       fh.find_edge(graph, fold[2]), fold[3])
-    print("The graph we get:")
-    new.print_nodes()
+##    folder = "partial_fold_test"
+##    graph = fio.read_graph(1, folder)
+##    fold = fh.fold_obj_to_name(graph.find_legal_folds())[0]
+##    new = partial_fold(graph, fh.find_edge(graph, fold[0]), fold[1],
+##                 fh.find_edge(graph, fold[2]), fold[3])
+##    print(graph.is_equal(new))
