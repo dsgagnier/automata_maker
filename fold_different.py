@@ -1,6 +1,7 @@
 import copy
 import Node
 import fold_helper as f
+import make_legal as mleg
 
 def make_new_edge(edge_long, ht_long, edge_short, ht_short):
     '''Given two edges that are being folded (with the direction of folidng along the edges
@@ -120,6 +121,7 @@ def diff_length_fold(old_graph, edge_long, ht_long, edge_short, ht_short):
     f.delete_folded_edges(graph.nodes, [edge_long.name])
     for edge in graph.nodes:
         f.remove_self_connect(edge)
+    mleg.remove_val_two_vertex(graph)
     graph.update_matrix()
     return graph
 

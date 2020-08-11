@@ -1,6 +1,7 @@
 import fold_same as fs
 import fold_different as fd
 import fold_helper as fh
+import fold_partial as fp
 
 class Fold:
     '''Describes a fold that can be performed on a graph.
@@ -32,5 +33,8 @@ class Fold:
             return new
         elif self.longer == self.fold_name[2]:
             new = fd.diff_length_fold(self.graph_from, edge2, ht2, edge1, ht1)
+            return new
+        elif self.longer == "partial":
+            new = fp.partial_fold(self.graph_from, edge1, ht1, edge2, ht2)
             return new
         

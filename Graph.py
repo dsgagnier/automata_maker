@@ -3,6 +3,7 @@ import adj_matrices as adj
 import fold_helper as fh
 import Fold as f
 import file_IO_helper as fio
+import copy
 
 class Graph:
     '''A graph contains a collection of node objects.'''
@@ -106,8 +107,7 @@ class Graph:
                 i += 1
         return sorted(adj)
     
-
-    def find_legal_folds(self):
+    def find_legal_folds(self, partial = False):
         '''Given a graph, this function determines what the legal folds on this graph are.
         It returns the folds as a list of Fold objects.
         '''
@@ -117,19 +117,26 @@ class Graph:
             for turn in edge.head:
                 fold_on = fh.find_edge(self, turn[0])
                 fold_name = fh.sort_to_str(edge.name, "h", turn[0], turn[1])
-                if fold_name[0] == fold_name[2]:    # This is never a legal fold
-                    pass
+                if fold_name[0] == fold_name[2]:    # This is only a legal partial fold
+                    if partial:
+                        folds.append(f.Fold(self, fold_name, "partial"))
+                    else:
+                        pass
                 elif fold_name not in names and turn[2] == False:
                     names.append(fold_name)
                     if fh.same_length_fold_allowed(edge, "h", fold_on, turn[1]):
                         folds.append(f.Fold(self, fold_name, 'same'))
                     folds.append(f.Fold(self, fold_name, edge.name))
                     folds.append(f.Fold(self, fold_name, turn[0]))
+                    if partial:
+                        folds.append(f.Fold(self, fold_name, "partial"))
             # Same thing, but in tail
             for turn in edge.tail:
                 fold_on = fh.find_edge(self, turn[0])
                 fold_name = fh.sort_to_str(edge.name, "t", turn[0], turn[1])
-                if fold_name[0] == fold_name[2]:    # Never a legal fold
+                if fold_name[0] == fold_name[2]:
+                    # legal as a partial fold, but that would be accounted for in the
+                    # head section
                     pass
                 elif fold_name not in names and turn[2] == False:
                     names.append(fold_name)
@@ -137,6 +144,8 @@ class Graph:
                         folds.append(f.Fold(self, fold_name, 'same'))
                     folds.append(f.Fold(self, fold_name, edge.name))
                     folds.append(f.Fold(self, fold_name, turn[0]))
+                    if partial:
+                        folds.append(f.Fold(self, fold_name, "partial"))
         return folds
 
     def vertices_with_folds(self):
@@ -158,11 +167,11 @@ class Graph:
             vertices_w_folds.append(verts[ind])
         return vertices_w_folds
 
-    def perform_legal_folds(self, folder = "states"):
+    def perform_legal_folds(self, folder = "states", partial = False, reduced_only = False):
         '''Performs all legal folds on a graph stored in the specifed folder.
         '''
         can_get_to = []
-        folds = self.find_legal_folds()
+        folds = self.find_legal_folds(partial)
         print()
         print("new graph")
         for fold in folds:
@@ -174,19 +183,70 @@ class Graph:
             print("We performed the fold:")
             print(fold.fold_name)
             print(fold.longer)
-            print("It gave the graph:")
-            new.print_nodes()
-            ind = new.find_in_list(folder)
-            print("Is it in the list? If so, what's its file name?")
-            print(ind)
-            if ind is None:     # we haven't already seen the graph gotten from fold
-                file_name = fio.next_graph(folder)
-                fio.write_file(new, file_name)
-                can_get_to.append([fold.fold_name, fold.longer, fio.graph_index(file_name)])
-            else:
-                can_get_to.append([fold.fold_name, fold.longer, fio.graph_index(ind)])
-            print("did a fold")
+            if not reduced_only or new.is_reduced():
+                print("It gave the graph:")
+                new.print_nodes()
+                ind = new.find_in_list(folder)
+                print("Is it in the list? If so, what's its file name?")
+                print(ind)
+                if ind is None:     # we haven't already seen the graph gotten from fold
+                    file_name = fio.next_graph(folder)
+                    fio.write_file(new, file_name)
+                    can_get_to.append([fold.fold_name, fold.longer, fio.graph_index(file_name)])
+                else:
+                    can_get_to.append([fold.fold_name, fold.longer, fio.graph_index(ind)])
+                print("did a fold")
         self.can_get_to = can_get_to
+
+    def is_connected(self, starting = None, seen = None):
+        '''A recursive function that checks if a graph is connected. Code adapted from:
+        https://www.python-course.eu/graphs_python.php
+        '''
+        if starting is None:
+            starting = self.nodes[0]
+        if seen is None:
+            seen = []
+        seen.append(starting.name)
+        if len(seen) != len(self.nodes): # We haven't seen every edge
+            for turn in starting.head:
+                if turn[0] not in seen:
+                    if self.is_connected(fh.find_edge(self, turn[0]), seen):
+                        return True
+            for turn in starting.tail:
+                if turn[0] not in seen:
+                    if self.is_connected(fh.find_edge(self, turn[0]), seen):
+                        return True
+        else:
+            return True
+        return False
+
+    def delete_node(self, node):
+        '''Deletes the specified node from the graph.'''
+        self.nodes.remove(node)
+        for edge in self.nodes:
+            turn = 0
+            while turn < len(edge.head):
+                if edge.head[turn][0] == node.name:
+                    del edge.head[turn]
+                else:
+                    turn += 1
+            turn = 0
+            while turn < len(edge.tail):
+                if edge.tail[turn][0] == node.name:
+                    del edge.tail[turn]
+                else:
+                    turn += 1
+                    
+    def is_reduced(self):
+        '''Determines if the graph is reduced (ie does not have a separating edge)'''
+        i = 0
+        while i < len(self.nodes):
+            graph = copy.deepcopy(self)
+            graph.delete_node(graph.nodes[i])
+            if not graph.is_connected():
+                return False
+            i += 1
+        return True
 
 if __name__ == "__main__":
     import file_IO_helper as fio
@@ -240,9 +300,19 @@ if __name__ == "__main__":
 ##    #test is_reduced
 ##    print(graph.is_reduced())
 ##
-    # test vertices again
-    graph = fio.read_graph(1, "states_from_tri_and_ic")
-    verts = graph.get_vertices()
-    print(verts)
-    for i in range(len(verts)):
-        print(graph.adjacent_vertices(verts, i))
+##    # test vertices again
+##    graph = fio.read_graph(1, "states_from_tri_and_ic")
+##    verts = graph.get_vertices()
+##    print(verts)
+##    for i in range(len(verts)):
+##        print(graph.adjacent_vertices(verts, i))
+##
+    # test is connected
+    folder = "states_from_tri_and_ic"
+    i = 0
+    while i < 50:
+        graph = fio.read_graph(i, folder)
+        print(i)
+        print(graph.is_reduced())
+        i += 1
+    print(fio.read_graph(102, folder).is_reduced())
