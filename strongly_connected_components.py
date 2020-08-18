@@ -135,8 +135,8 @@ if __name__ == "__main__":
 ##        print()
 
     # Try for graphs from ic and triangle
-    part = partition_states("states_from_tri_and_ic")
-    scc = partition_part_scc(part[5], "states_from_tri_and_ic")
+    part = partition_states("states_from_tri_graph")
+    scc = partition_part_scc(part[5], "states_from_tri_graph")
     for elem in scc:
         print(elem)
         print()
