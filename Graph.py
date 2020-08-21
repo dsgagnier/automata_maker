@@ -107,7 +107,7 @@ class Graph:
                 i += 1
         return sorted(adj)
     
-    def find_legal_folds(self, partial = False):
+    def find_legal_folds(self, partial = False, same = True):
         '''Given a graph, this function determines what the legal folds on this graph are.
         It returns the folds as a list of Fold objects.
         '''
@@ -124,7 +124,7 @@ class Graph:
                         pass
                 elif fold_name not in names and turn[2] == False:
                     names.append(fold_name)
-                    if fh.same_length_fold_allowed(edge, "h", fold_on, turn[1]):
+                    if same and fh.same_length_fold_allowed(edge, "h", fold_on, turn[1]):
                         folds.append(f.Fold(self, fold_name, 'same'))
                     folds.append(f.Fold(self, fold_name, edge.name))
                     folds.append(f.Fold(self, fold_name, turn[0]))
@@ -140,7 +140,7 @@ class Graph:
                     pass
                 elif fold_name not in names and turn[2] == False:
                     names.append(fold_name)
-                    if fh.same_length_fold_allowed(edge, "t", fold_on, turn[1]):
+                    if same and fh.same_length_fold_allowed(edge, "t", fold_on, turn[1]):
                         folds.append(f.Fold(self, fold_name, 'same'))
                     folds.append(f.Fold(self, fold_name, edge.name))
                     folds.append(f.Fold(self, fold_name, turn[0]))
@@ -167,11 +167,11 @@ class Graph:
             vertices_w_folds.append(verts[ind])
         return vertices_w_folds
 
-    def perform_legal_folds(self, folder = "states", partial = False, reduced_only = False):
+    def perform_legal_folds(self, folder = "states", partial = False, reduced_only = False, same = True):
         '''Performs all legal folds on a graph stored in the specifed folder.
         '''
         can_get_to = []
-        folds = self.find_legal_folds(partial)
+        folds = self.find_legal_folds(partial, same)
         print()
         print("new graph")
         for fold in folds:
