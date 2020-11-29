@@ -307,12 +307,13 @@ if __name__ == "__main__":
 ##    for i in range(len(verts)):
 ##        print(graph.adjacent_vertices(verts, i))
 ##
-    # test is connected
-    folder = "states_from_tri_and_ic"
-    i = 0
-    while i < 50:
-        graph = fio.read_graph(i, folder)
-        print(i)
-        print(graph.is_reduced())
-        i += 1
-    print(fio.read_graph(102, folder).is_reduced())
+##    # test is connected
+##    folder = "states_from_tri_and_ic"
+##    i = 0
+##    while i < 50:
+##        graph = fio.read_graph(i, folder)
+##        print(i)
+##        print(graph.is_reduced())
+##        i += 1
+##    print(fio.read_graph(102, folder).is_reduced())
+    print()

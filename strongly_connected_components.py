@@ -118,7 +118,7 @@ def partition_part_scc(part_class, folder = "states"):
     return scc_dict_to_states_list(scc, part_class)
 
 def partitioned_get_scc(partition):
-    '''Giving a partitioned automata of the states, returns the strongly connected
+    '''Giving a partitioned automaton of the states, returns the strongly connected
     components.
     '''
     scc = []
